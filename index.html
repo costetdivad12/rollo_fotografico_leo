@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>rollo — primer añito de Leonardo 🎂</title>
+<style>
+  :root {
+    --baby-navy: #1b2838;
+    --baby-dark: #243044;
+    --baby-cream: #fdf8f0;
+    --baby-blue: #89b4d4;
+    --baby-blue-dim: #6a9abf;
+    --baby-gold: #e8c872;
+    --baby-pink: #e8a0b4;
+    --baby-line: rgba(253, 248, 240, 0.16);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--baby-navy);
+    color: var(--baby-cream);
+    font-family: 'Courier New', ui-monospace, monospace;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+  }
+  .screen.active { display: flex; }
+
+  /* ---------- Tipografía ---------- */
+  .display {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- Decoraciones flotantes ---------- */
+  .floating-deco {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.7;
+    font-size: 52px;
+    animation: floaty 5s ease-in-out infinite;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+  .floating-deco:nth-child(2) { animation-delay: -1.5s; font-size: 46px; }
+  .floating-deco:nth-child(3) { animation-delay: -3s; font-size: 56px; }
+  .floating-deco:nth-child(4) { animation-delay: -4.2s; font-size: 44px; }
+  .floating-deco:nth-child(5) { animation-delay: -0.8s; font-size: 38px; }
+  .floating-deco:nth-child(6) { animation-delay: -2.5s; font-size: 42px; }
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
+    50% { transform: translateY(-16px) rotate(5deg) scale(1.08); }
+  }
+
+  /* ---------- PANTALLA 1: bienvenida / nombre ---------- */
+  #screen-welcome {
+    justify-content: center;
+    align-items: center;
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 30% 15%, rgba(137, 180, 212, 0.35), transparent 45%),
+      radial-gradient(circle at 75% 80%, rgba(232, 160, 180, 0.30), transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(232, 200, 114, 0.12), transparent 60%),
+      var(--baby-navy);
+  }
+
+  /* Icono de bebé / pastel SVG */
+  .baby-logo {
+    width: 140px;
+    height: auto;
+    margin-bottom: 22px;
+    filter: drop-shadow(0 6px 20px rgba(137, 180, 212, 0.5));
+  }
+
+  .age-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3.5px solid var(--baby-gold);
+    font-family: Georgia, serif;
+    font-size: 34px;
+    font-weight: bold;
+    color: var(--baby-gold);
+    margin-bottom: 14px;
+    position: relative;
+    box-shadow: 0 0 30px rgba(232, 200, 114, 0.45), inset 0 0 15px rgba(232, 200, 114, 0.1);
+  }
+
+  .event-name {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--baby-blue);
+    margin-bottom: 10px;
+    text-shadow: 0 0 12px rgba(137, 180, 212, 0.4);
+  }
+
+  .display-title {
+    font-size: 36px;
+    line-height: 1.12;
+    margin: 0 0 14px 0;
+    color: var(--baby-cream);
+  }
+  .display-title .name-highlight {
+    color: var(--baby-blue);
+  }
+
+  .welcome-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(253, 248, 240, 0.6);
+    max-width: 320px;
+    margin: 0 0 36px 0;
+  }
+
+  .field-block {
+    width: 100%;
+    max-width: 320px;
+    text-align: left;
+    margin-bottom: 18px;
+  }
+
+  .field-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(253, 248, 240, 0.5);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .name-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--baby-line);
+    color: var(--baby-cream);
+    font-family: Georgia, serif;
+    font-size: 22px;
+    padding: 6px 2px 12px 2px;
+    outline: none;
+    transition: border-color 0.25s ease;
+  }
+  .name-input:focus { border-bottom-color: var(--baby-blue); }
+  .name-input::placeholder { color: rgba(253, 248, 240, 0.28); }
+
+  .roll-counter-hint {
+    font-size: 12px;
+    color: rgba(253, 248, 240, 0.45);
+    margin-top: 24px;
+    letter-spacing: 0.02em;
+  }
+  .roll-counter-hint b { color: var(--baby-blue); font-weight: 600; }
+
+  .btn-primary {
+    width: 100%;
+    max-width: 320px;
+    background: var(--baby-blue);
+    color: var(--baby-navy);
+    border: none;
+    padding: 16px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 24px;
+    margin-top: 28px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 20px rgba(137, 180, 212, 0.5), 0 0 40px rgba(137, 180, 212, 0.15);
+  }
+  .btn-primary:active { transform: scale(0.98); background: var(--baby-blue-dim); }
+  .btn-primary:disabled {
+    background: var(--baby-dark);
+    color: rgba(253, 248, 240, 0.3);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ---------- PANTALLA 2: cámara ---------- */
+  #screen-camera {
+    background: var(--baby-navy);
+    position: relative;
+  }
+
+  .cam-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    z-index: 5;
+  }
+
+  .frame-counter {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--baby-cream);
+    background: rgba(0,0,0,0.4);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--baby-line);
+  }
+  .frame-counter b { color: var(--baby-blue); }
+
+  .guest-chip {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgba(253, 248, 240, 0.7);
+    background: rgba(0,0,0,0.4);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--baby-line);
+    text-transform: uppercase;
+  }
+
+  .viewfinder-wrap {
+    flex: 1;
+    position: relative;
+    margin: 0 12px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #0a1220;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .viewfinder-frame-corners span {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(253, 248, 240, 0.45);
+    border-radius: 2px;
+  }
+  .corner-tl { top: 14px; left: 14px; border-right: none; border-bottom: none; }
+  .corner-tr { top: 14px; right: 14px; border-left: none; border-bottom: none; }
+  .corner-bl { bottom: 14px; left: 14px; border-right: none; border-top: none; }
+  .corner-br { bottom: 14px; right: 14px; border-left: none; border-top: none; }
+
+  .cam-placeholder {
+    text-align: center;
+    color: rgba(253, 248, 240, 0.45);
+    font-size: 13px;
+    padding: 0 24px;
+    line-height: 1.6;
+  }
+
+  .flash-overlay {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .flash-overlay.flashing {
+    animation: flashpop 320ms ease-out;
+  }
+  @keyframes flashpop {
+    0% { opacity: 0.9; }
+    100% { opacity: 0; }
+  }
+
+  .cam-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    padding: 22px 18px 28px 18px;
+  }
+
+  .shutter-btn {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 4px solid var(--baby-cream);
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .shutter-btn::after {
+    content: '';
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--baby-cream);
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .shutter-btn:active::after {
+    transform: scale(0.85);
+    background: var(--baby-blue);
+  }
+  .shutter-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .file-fallback-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    color: rgba(253, 248, 240, 0.7);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .file-fallback-icon {
+    width: 38px;
+    height: 38px;
+    border: 1.5px solid var(--baby-line);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  #file-input-hidden { display: none; }
+
+  .upload-toast {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: var(--baby-cream);
+    color: var(--baby-navy);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 30;
+    white-space: nowrap;
+  }
+  .upload-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .upload-toast.error { background: #d9534f; color: var(--baby-cream); }
+
+  /* ---------- PANTALLA 3: rollo agotado ---------- */
+  #screen-done {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 25%, rgba(232, 200, 114, 0.25), transparent 45%),
+      radial-gradient(circle at 30% 80%, rgba(232, 160, 180, 0.2), transparent 45%),
+      radial-gradient(circle at 70% 90%, rgba(137, 180, 212, 0.25), transparent 45%),
+      var(--baby-navy);
+  }
+
+  .done-icon {
+    font-size: 64px;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 4px 12px rgba(232, 200, 114, 0.4));
+  }
+
+  .done-title {
+    font-size: 30px;
+    margin: 0 0 12px 0;
+  }
+
+  .done-sub {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(253, 248, 240, 0.6);
+    max-width: 300px;
+    margin: 0 0 26px 0;
+  }
+
+  .done-stats {
+    display: flex;
+    gap: 26px;
+    margin-bottom: 8px;
+  }
+  .done-stat {
+    text-align: center;
+  }
+  .done-stat .num {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    color: var(--baby-blue);
+    display: block;
+  }
+  .done-stat .label {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(253, 248, 240, 0.45);
+  }
+
+  /* ---------- Confetti animation (done screen) ---------- */
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    opacity: 0;
+    animation: confettiFall 3s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(-20px) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
+  }
+
+  /* ---------- thumbnails ---------- */
+  .thumb-strip {
+    display: flex;
+    gap: 6px;
+    padding: 0 18px 14px 18px;
+    overflow-x: auto;
+  }
+  .thumb-strip::-webkit-scrollbar { display: none; }
+  .thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--baby-line);
+    opacity: 0.85;
+  }
+
+  canvas#capture-canvas { display: none; }
+
+  @media (min-width: 600px) {
+    .display-title { font-size: 42px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="flash-overlay" id="flash"></div>
+
+<!-- ============ PANTALLA 1: BIENVENIDA ============ -->
+<section class="screen active" id="screen-welcome">
+  <!-- Decoraciones flotantes -->
+  <div class="floating-deco" style="top:5%;left:6%;">&#127880;</div>
+  <div class="floating-deco" style="top:10%;right:8%;">&#11088;</div>
+  <div class="floating-deco" style="top:22%;left:80%;">&#127874;</div>
+  <div class="floating-deco" style="bottom:22%;left:5%;">&#128118;</div>
+  <div class="floating-deco" style="bottom:12%;right:6%;">&#127880;</div>
+  <div class="floating-deco" style="bottom:30%;right:15%;">&#11088;</div>
+  <div class="floating-deco" style="top:38%;left:3%;">&#127775;</div>
+  <div class="floating-deco" style="bottom:5%;left:40%;">&#128516;</div>
+
+  <!-- Pastel SVG -->
+  <svg class="baby-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Vela -->
+    <!-- Llama de la vela -->
+    <ellipse cx="60" cy="12" rx="7" ry="10" fill="#f5c842" opacity="0.95"/>
+    <ellipse cx="60" cy="11" rx="4" ry="6" fill="#ffe88a" opacity="0.9"/>
+    <ellipse cx="60" cy="9" rx="2" ry="3" fill="#fff8dc"/>
+    <!-- Vela -->
+    <rect x="55" y="20" width="10" height="28" rx="3" fill="#e8c872"/>
+    <rect x="57" y="20" width="3" height="28" rx="1" fill="#f0d890" opacity="0.6"/>
+    <!-- Pastel capa superior -->
+    <rect x="28" y="48" width="64" height="28" rx="9" fill="#7fb8e0"/>
+    <rect x="28" y="48" width="64" height="10" rx="9" fill="#9acbec" opacity="0.6"/>
+    <!-- Pastel capa inferior -->
+    <rect x="16" y="70" width="88" height="32" rx="11" fill="#5a9ec7"/>
+    <rect x="16" y="70" width="88" height="10" rx="11" fill="#7fb8e0" opacity="0.5"/>
+    <!-- Decoraciones del pastel -->
+    <circle cx="36" cy="60" r="4" fill="#f0708a"/>
+    <circle cx="52" cy="58" r="3.5" fill="#e8c872"/>
+    <circle cx="68" cy="58" r="3.5" fill="#e8c872"/>
+    <circle cx="84" cy="60" r="4" fill="#f0708a"/>
+    <!-- Bolitas inferiores -->
+    <circle cx="30" cy="84" r="3" fill="#f0708a" opacity="0.8"/>
+    <circle cx="45" cy="82" r="2.5" fill="#e8c872" opacity="0.8"/>
+    <circle cx="60" cy="83" r="3" fill="#f0708a" opacity="0.8"/>
+    <circle cx="75" cy="82" r="2.5" fill="#e8c872" opacity="0.8"/>
+    <circle cx="90" cy="84" r="3" fill="#f0708a" opacity="0.8"/>
+    <!-- Base -->
+    <rect x="22" y="98" width="76" height="8" rx="4" fill="rgba(253,248,240,0.3)"/>
+    <!-- Numero 1 en el pastel -->
+    <text x="60" y="92" text-anchor="middle" fill="#fdf8f0" font-family="Georgia, serif" font-size="22" font-weight="bold">1</text>
+  </svg>
+
+  <div class="event-name" id="event-name-label">PRIMER AÑITO DE LEONARDO</div>
+  <h1 class="display-title display">Leonardo<br>cumple <span class="name-highlight">1 añito</span></h1>
+  <p class="welcome-sub">Cada invitado tiene un rollo limitado. Sin vista previa, sin filtros. Las fotos se revelan todas juntas al final de la fiesta.</p>
+
+  <div class="field-block">
+    <label class="field-label" for="guest-name">¿Como te llamas?</label>
+    <input type="text" id="guest-name" class="name-input" placeholder="Escribe tu nombre" maxlength="30" autocomplete="off">
+  </div>
+
+  <p class="roll-counter-hint">Tienes <b>12 disparos</b> en tu rollo. Usalos con cariño.</p>
+
+  <button class="btn-primary" id="btn-start" disabled>Empezar a disparar</button>
+</section>
+
+<!-- ============ PANTALLA 2: CAMARA ============ -->
+<section class="screen" id="screen-camera">
+  <div class="cam-topbar">
+    <div class="guest-chip" id="guest-chip">&mdash;</div>
+    <div class="frame-counter"><b id="frames-left">12</b> / 12</div>
+  </div>
+
+  <div class="viewfinder-wrap">
+    <video id="video-feed" autoplay playsinline muted></video>
+    <div class="cam-placeholder" id="cam-placeholder">
+      Activando camara...<br>si no responde, usa el boton de abajo para elegir una foto.
+    </div>
+    <div class="viewfinder-frame-corners">
+      <span class="corner-tl"></span><span class="corner-tr"></span>
+      <span class="corner-bl"></span><span class="corner-br"></span>
+    </div>
+    <div class="upload-toast" id="upload-toast">Guardando...</div>
+  </div>
+
+  <div class="thumb-strip" id="thumb-strip"></div>
+
+  <div class="cam-controls">
+    <button class="file-fallback-btn" id="btn-file-fallback">
+      <span class="file-fallback-icon">&#9000;</span>
+      Galeria
+    </button>
+    <button class="shutter-btn" id="btn-shutter"></button>
+    <div style="width:38px;"></div>
+  </div>
+  <input type="file" id="file-input-hidden" accept="image/*" capture="environment">
+</section>
+
+<!-- ============ PANTALLA 3: ROLLO TERMINADO ============ -->
+<section class="screen" id="screen-done">
+  <div class="done-icon">&#127874;</div>
+  <h1 class="done-title display">Rollo completo.</h1>
+  <p class="done-sub">Gracias <span id="done-name">&mdash;</span>, tus 12 fotos del cumple de Leonardo ya estan guardadas. Se revelan todas juntas cuando termine la fiesta.</p>
+  <div class="done-stats">
+    <div class="done-stat"><span class="num">12</span><span class="label">disparos</span></div>
+    <div class="done-stat"><span class="num" id="done-success-count">0</span><span class="label">guardadas</span></div>
+  </div>
+</section>
+
+<canvas id="capture-canvas"></canvas>
+
+<script>
+/* ===================== CONFIGURACION ===================== */
+// Reemplazar con la URL de tu Apps Script desplegado (termina en /exec)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec';
+
+const MAX_FOTOS = 12;
+const EVENT_LABEL = 'Primer Añito de Leonardo';
+
+/* ===================== ESTADO ===================== */
+let guestName = '';
+let photosTaken = 0;
+let photosUploadedOk = 0;
+let mediaStream = null;
+
+/* ===================== ELEMENTOS ===================== */
+const screenWelcome = document.getElementById('screen-welcome');
+const screenCamera = document.getElementById('screen-camera');
+const screenDone = document.getElementById('screen-done');
+
+const nameInput = document.getElementById('guest-name');
+const btnStart = document.getElementById('btn-start');
+const guestChip = document.getElementById('guest-chip');
+const eventNameLabel = document.getElementById('event-name-label');
+
+const video = document.getElementById('video-feed');
+const camPlaceholder = document.getElementById('cam-placeholder');
+const canvas = document.getElementById('capture-canvas');
+const btnShutter = document.getElementById('btn-shutter');
+const btnFileFallback = document.getElementById('btn-file-fallback');
+const fileInputHidden = document.getElementById('file-input-hidden');
+const framesLeftEl = document.getElementById('frames-left');
+const thumbStrip = document.getElementById('thumb-strip');
+const uploadToast = document.getElementById('upload-toast');
+const flashEl = document.getElementById('flash');
+
+const doneNameEl = document.getElementById('done-name');
+const doneSuccessCountEl = document.getElementById('done-success-count');
+
+eventNameLabel.textContent = EVENT_LABEL.toUpperCase();
+
+/* ===================== PANTALLA 1: nombre ===================== */
+nameInput.addEventListener('input', () => {
+  btnStart.disabled = nameInput.value.trim().length === 0;
+});
+
+btnStart.addEventListener('click', () => {
+  guestName = nameInput.value.trim();
+  guestChip.textContent = guestName.toUpperCase();
+  goToScreen(screenCamera);
+  startCamera();
+});
+
+/* ===================== Navegacion de pantallas ===================== */
+function goToScreen(target) {
+  [screenWelcome, screenCamera, screenDone].forEach(s => s.classList.remove('active'));
+  target.classList.add('active');
+  if (target === screenDone) spawnConfetti();
+}
+
+/* ===================== Confetti ===================== */
+function spawnConfetti() {
+  const colors = ['#89b4d4', '#e8a0b4', '#e8c872', '#fdf8f0', '#a8d8a8'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = (Math.random() * 1.5) + 's';
+    el.style.width = (8 + Math.random() * 10) + 'px';
+    el.style.height = (8 + Math.random() * 10) + 'px';
+    screenDone.appendChild(el);
+  }
+}
+
+/* ===================== Camara en vivo ===================== */
+async function startCamera() {
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },
+      audio: false
+    });
+    video.srcObject = mediaStream;
+    camPlaceholder.style.display = 'none';
+  } catch (err) {
+    camPlaceholder.innerHTML = 'No pudimos abrir la camara en vivo.<br>Usa el boton de abajo para tomar o elegir una foto.';
+  }
+}
+
+btnShutter.addEventListener('click', () => {
+  if (!mediaStream) {
+    fileInputHidden.click();
+    return;
+  }
+  capturePhotoFromVideo();
+});
+
+btnFileFallback.addEventListener('click', () => {
+  fileInputHidden.click();
+});
+
+fileInputHidden.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    registerShot(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+  fileInputHidden.value = '';
+});
+
+function capturePhotoFromVideo() {
+  const w = video.videoWidth;
+  const h = video.videoHeight;
+  if (!w || !h) return;
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, w, h);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  triggerFlash();
+  registerShot(dataUrl);
+}
+
+function triggerFlash() {
+  flashEl.classList.remove('flashing');
+  void flashEl.offsetWidth;
+  flashEl.classList.add('flashing');
+}
+
+/* ===================== Registrar disparo y subir ===================== */
+function registerShot(dataUrl) {
+  if (photosTaken >= MAX_FOTOS) return;
+
+  photosTaken++;
+  updateFrameCounter();
+  addThumb(dataUrl);
+  uploadPhoto(dataUrl, photosTaken);
+
+  if (photosTaken >= MAX_FOTOS) {
+    btnShutter.disabled = true;
+    setTimeout(() => {
+      stopCamera();
+      doneNameEl.textContent = guestName;
+      doneSuccessCountEl.textContent = photosUploadedOk;
+      goToScreen(screenDone);
+    }, 700);
+  }
+}
+
+function updateFrameCounter() {
+  const left = MAX_FOTOS - photosTaken;
+  framesLeftEl.textContent = left;
+}
+
+function addThumb(dataUrl) {
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.className = 'thumb';
+  thumbStrip.appendChild(img);
+  thumbStrip.scrollLeft = thumbStrip.scrollWidth;
+}
+
+function stopCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = null;
+  }
+}
+
+/* ===================== Subida a Google Drive via Apps Script ===================== */
+function uploadPhoto(dataUrl, numeroFoto) {
+  showToast('Guardando foto ' + numeroFoto + '...');
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      imageBase64: dataUrl,
+      nombre: guestName,
+      numeroFoto: numeroFoto
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      photosUploadedOk++;
+      showToast('Foto ' + numeroFoto + ' guardada');
+    } else {
+      showToast('Error al guardar foto ' + numeroFoto, true);
+    }
+  })
+  .catch(() => {
+    showToast('Sin conexion, foto ' + numeroFoto + ' no se guardo', true);
+  });
+}
+
+let toastTimeout;
+function showToast(msg, isError) {
+  clearTimeout(toastTimeout);
+  uploadToast.textContent = msg;
+  uploadToast.classList.toggle('error', !!isError);
+  uploadToast.classList.add('show');
+  toastTimeout = setTimeout(() => uploadToast.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
