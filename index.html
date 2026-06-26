@@ -46,13 +46,11 @@
   }
   .screen.active { display: flex; }
 
-  /* ---------- Tipografía ---------- */
   .display {
     font-family: Georgia, 'Times New Roman', serif;
     letter-spacing: -0.01em;
   }
 
-  /* ---------- Decoraciones flotantes ---------- */
   .floating-deco {
     position: absolute;
     pointer-events: none;
@@ -71,7 +69,6 @@
     50% { transform: translateY(-16px) rotate(5deg) scale(1.08); }
   }
 
-  /* ---------- PANTALLA 1: bienvenida / nombre ---------- */
   #screen-welcome {
     justify-content: center;
     align-items: center;
@@ -86,7 +83,6 @@
       var(--baby-navy);
   }
 
-  /* Icono de bebé / pastel SVG */
   .baby-logo {
     width: 140px;
     height: auto;
@@ -203,7 +199,6 @@
     box-shadow: none;
   }
 
-  /* ---------- PANTALLA 2: cámara ---------- */
   #screen-camera {
     background: var(--baby-navy);
     position: relative;
@@ -381,7 +376,6 @@
   }
   .upload-toast.error { background: #d9534f; color: var(--baby-cream); }
 
-  /* ---------- PANTALLA 3: rollo agotado ---------- */
   #screen-done {
     justify-content: center;
     align-items: center;
@@ -436,7 +430,6 @@
     color: rgba(253, 248, 240, 0.45);
   }
 
-  /* ---------- Confetti animation (done screen) ---------- */
   .confetti-piece {
     position: absolute;
     width: 8px;
@@ -450,7 +443,6 @@
     100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
   }
 
-  /* ---------- thumbnails ---------- */
   .thumb-strip {
     display: flex;
     gap: 6px;
@@ -481,7 +473,6 @@
 
 <!-- ============ PANTALLA 1: BIENVENIDA ============ -->
 <section class="screen active" id="screen-welcome">
-  <!-- Decoraciones flotantes -->
   <div class="floating-deco" style="top:5%;left:6%;">&#127880;</div>
   <div class="floating-deco" style="top:10%;right:8%;">&#11088;</div>
   <div class="floating-deco" style="top:22%;left:80%;">&#127874;</div>
@@ -491,36 +482,26 @@
   <div class="floating-deco" style="top:38%;left:3%;">&#127775;</div>
   <div class="floating-deco" style="bottom:5%;left:40%;">&#128516;</div>
 
-  <!-- Pastel SVG -->
   <svg class="baby-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <!-- Vela -->
-    <!-- Llama de la vela -->
     <ellipse cx="60" cy="12" rx="7" ry="10" fill="#f5c842" opacity="0.95"/>
     <ellipse cx="60" cy="11" rx="4" ry="6" fill="#ffe88a" opacity="0.9"/>
     <ellipse cx="60" cy="9" rx="2" ry="3" fill="#fff8dc"/>
-    <!-- Vela -->
     <rect x="55" y="20" width="10" height="28" rx="3" fill="#e8c872"/>
     <rect x="57" y="20" width="3" height="28" rx="1" fill="#f0d890" opacity="0.6"/>
-    <!-- Pastel capa superior -->
     <rect x="28" y="48" width="64" height="28" rx="9" fill="#7fb8e0"/>
     <rect x="28" y="48" width="64" height="10" rx="9" fill="#9acbec" opacity="0.6"/>
-    <!-- Pastel capa inferior -->
     <rect x="16" y="70" width="88" height="32" rx="11" fill="#5a9ec7"/>
     <rect x="16" y="70" width="88" height="10" rx="11" fill="#7fb8e0" opacity="0.5"/>
-    <!-- Decoraciones del pastel -->
     <circle cx="36" cy="60" r="4" fill="#f0708a"/>
     <circle cx="52" cy="58" r="3.5" fill="#e8c872"/>
     <circle cx="68" cy="58" r="3.5" fill="#e8c872"/>
     <circle cx="84" cy="60" r="4" fill="#f0708a"/>
-    <!-- Bolitas inferiores -->
     <circle cx="30" cy="84" r="3" fill="#f0708a" opacity="0.8"/>
     <circle cx="45" cy="82" r="2.5" fill="#e8c872" opacity="0.8"/>
     <circle cx="60" cy="83" r="3" fill="#f0708a" opacity="0.8"/>
     <circle cx="75" cy="82" r="2.5" fill="#e8c872" opacity="0.8"/>
     <circle cx="90" cy="84" r="3" fill="#f0708a" opacity="0.8"/>
-    <!-- Base -->
     <rect x="22" y="98" width="76" height="8" rx="4" fill="rgba(253,248,240,0.3)"/>
-    <!-- Numero 1 en el pastel -->
     <text x="60" y="92" text-anchor="middle" fill="#fdf8f0" font-family="Georgia, serif" font-size="22" font-weight="bold">1</text>
   </svg>
 
@@ -590,6 +571,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCFvWunjjmgK79
 
 const MAX_FOTOS = 12;
 const EVENT_LABEL = 'Primer Añito de Leonardo';
+const EVENT_FOLDER = 'Primer_Anito_Leonardo';   // nombre de la carpeta que se crea en Drive
 
 /* ===================== ESTADO ===================== */
 let guestName = '';
@@ -764,7 +746,8 @@ function uploadPhoto(dataUrl, numeroFoto) {
     body: JSON.stringify({
       imageBase64: dataUrl,
       nombre: guestName,
-      numeroFoto: numeroFoto
+      numeroFoto: numeroFoto,
+      evento: EVENT_FOLDER
     })
   })
   .then(res => res.json())
