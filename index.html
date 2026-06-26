@@ -575,9 +575,29 @@ const EVENT_FOLDER = 'Primer_Anito_Leonardo';   // nombre de la carpeta que se c
 
 /* ===================== ESTADO ===================== */
 let guestName = '';
-let photosTaken = 0;
+let photosTaken = 0;        // cuántas lleva en total (incluye las que ya tenía del servidor)
 let photosUploadedOk = 0;
 let mediaStream = null;
+
+/* ===================== Identidad del dispositivo ===================== */
+// Genera un ID único por dispositivo y lo guarda en el navegador.
+// Así, si la misma persona vuelve a entrar desde el mismo celular,
+// el servidor reconoce que es el mismo invitado y continúa su rollo.
+function getDeviceId() {
+  let id = null;
+  try {
+    id = localStorage.getItem('rollo_device_id');
+    if (!id) {
+      id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem('rollo_device_id', id);
+    }
+  } catch (e) {
+    // Si el navegador bloquea localStorage, usamos un id de sesión (no persistente).
+    id = 'dev_sesion_' + Math.random().toString(36).substring(2, 10);
+  }
+  return id;
+}
+const DEVICE_ID = getDeviceId();
 
 /* ===================== ELEMENTOS ===================== */
 const screenWelcome = document.getElementById('screen-welcome');
@@ -613,9 +633,72 @@ nameInput.addEventListener('input', () => {
 btnStart.addEventListener('click', () => {
   guestName = nameInput.value.trim();
   guestChip.textContent = guestName.toUpperCase();
-  goToScreen(screenCamera);
-  startCamera();
+
+  // Preguntar al servidor cuántas fotos lleva ya este invitado (mismo nombre + dispositivo)
+  const textoBtn = btnStart.textContent;
+  btnStart.disabled = true;
+  btnStart.textContent = 'Cargando tu rollo...';
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      accion: 'estado',
+      nombre: guestName,
+      deviceId: DEVICE_ID,
+      evento: EVENT_FOLDER
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Ajustar el contador a lo que ya tenía subido el invitado
+      photosTaken = data.fotosSubidas || 0;
+      photosUploadedOk = data.fotosSubidas || 0;
+    }
+    if (data.success && data.completo) {
+      // Ya completó sus 12: ir directo a la pantalla final
+      doneNameEl.textContent = guestName;
+      doneSuccessCountEl.textContent = photosUploadedOk;
+      goToScreen(screenDone);
+      return;
+    }
+    updateFrameCounter();
+    refreshThumbsPlaceholder();
+    goToScreen(screenCamera);
+    startCamera();
+  })
+  .catch(() => {
+    // Si no se pudo consultar (sin conexión), empezar desde 0 para no bloquear
+    photosTaken = 0;
+    photosUploadedOk = 0;
+    updateFrameCounter();
+    goToScreen(screenCamera);
+    startCamera();
+  })
+  .finally(() => {
+    btnStart.disabled = false;
+    btnStart.textContent = textoBtn;
+  });
 });
+
+// Muestra marcadores de las fotos ya subidas previamente (sin la imagen real,
+// porque vive en Drive) para que el invitado entienda cuántas ya tiene.
+function refreshThumbsPlaceholder() {
+  thumbStrip.innerHTML = '';
+  for (let i = 0; i < photosTaken; i++) {
+    const ph = document.createElement('div');
+    ph.className = 'thumb';
+    ph.style.display = 'flex';
+    ph.style.alignItems = 'center';
+    ph.style.justifyContent = 'center';
+    ph.style.background = 'rgba(253,248,240,0.08)';
+    ph.style.fontSize = '14px';
+    ph.style.color = 'rgba(253,248,240,0.5)';
+    ph.textContent = '✓';
+    thumbStrip.appendChild(ph);
+  }
+}
 
 /* ===================== Navegacion de pantallas ===================== */
 function goToScreen(target) {
@@ -744,9 +827,10 @@ function uploadPhoto(dataUrl, numeroFoto) {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({
+      accion: 'subir',
       imageBase64: dataUrl,
       nombre: guestName,
-      numeroFoto: numeroFoto,
+      deviceId: DEVICE_ID,
       evento: EVENT_FOLDER
     })
   })
@@ -754,7 +838,10 @@ function uploadPhoto(dataUrl, numeroFoto) {
   .then(data => {
     if (data.success) {
       photosUploadedOk++;
-      showToast('Foto ' + numeroFoto + ' guardada');
+      const num = data.numeroFoto || numeroFoto;
+      showToast('Foto ' + num + ' guardada');
+    } else if (data.error === 'limite_alcanzado') {
+      showToast('Ya completaste tu rollo', true);
     } else {
       showToast('Error al guardar foto ' + numeroFoto, true);
     }
